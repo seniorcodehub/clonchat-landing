@@ -68,10 +68,10 @@ export function FeaturesSection() {
                   <Icon className="h-7 w-7 text-[#2563eb] group-hover:text-white transition-colors duration-300" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {t(feature.titleKey)}
+                  {t(feature.titleKey as keyof typeof t)}
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  {t(feature.descKey)}
+                  {t(feature.descKey as keyof typeof t)}
                 </p>
               </div>
             );

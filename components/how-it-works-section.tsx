@@ -53,10 +53,10 @@ export function HowItWorksSection() {
 
                 {/* Content */}
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  {t(step.titleKey)}
+                  {t(step.titleKey as keyof typeof t)}
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  {t(step.descKey)}
+                  {t(step.descKey as keyof typeof t)}
                 </p>
               </div>
             );
@@ -66,4 +66,3 @@ export function HowItWorksSection() {
     </section>
   );
 }
-

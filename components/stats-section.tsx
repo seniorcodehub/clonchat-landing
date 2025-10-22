@@ -30,10 +30,10 @@ export function StatsSection() {
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-                {t(stat.valueKey)}
+                {t(stat.valueKey as keyof typeof t)}
               </div>
               <div className="text-blue-100 text-sm md:text-base font-medium">
-                {t(stat.labelKey)}
+                {t(stat.labelKey as keyof typeof t)}
               </div>
             </div>
           ))}
@@ -42,4 +42,3 @@ export function StatsSection() {
     </section>
   );
 }
-
