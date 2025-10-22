@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { X, Mail } from "lucide-react";
+import { X, Mail, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import emailjs from "@emailjs/browser";
 
 type ContactModalContextValue = {
   open: () => void;
@@ -48,13 +49,14 @@ export function ContactModalProvider({
 function ContactModal() {
   const { close } = useContactModal();
   const { t } = useI18n();
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={close}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={close} />
       <div className="relative bg-white w-[90%] max-w-lg rounded-2xl shadow-2xl p-6 md:p-8">
         <button
           aria-label="Close"
@@ -71,40 +73,56 @@ function ContactModal() {
             {t("contact_title")}
           </h3>
         </div>
-        <p className="text-gray-600 mb-6">
-          {t("contact_desc")}
-        </p>
+        <p className="text-gray-600 mb-6">{t("contact_desc")}</p>
         <form
           className="space-y-4"
           onSubmit={async (e) => {
             e.preventDefault();
-            const form = e.currentTarget as HTMLFormElement;
-            const formData = new FormData(form);
-            
-            const data = {
-              name: formData.get("name"),
-              email: formData.get("email"),
-              company: formData.get("company"),
-              message: formData.get("message"),
-            };
+            setIsLoading(true);
+            setSubmitStatus("idle");
 
             try {
-              const response = await fetch('/api/contact', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-              });
+              const form = e.currentTarget as HTMLFormElement;
+              const formData = new FormData(form);
 
-              if (response.ok) {
-                alert('¡Mensaje enviado correctamente! Te contactaremos pronto.');
+              const templateParams = {
+                to_email: "codeintime.dev@gmail.com",
+                from_name: formData.get("name"),
+                from_email: formData.get("email"),
+                company: formData.get("company") || "",
+                message: `Nuevo mensaje de contacto desde ClonChat:
+
+Nombre: ${formData.get("name")}
+Email: ${formData.get("email")}
+Empresa: ${formData.get("company") || "No especificada"}
+
+Mensaje:
+${formData.get("message")}
+
+---
+Enviado desde el formulario de contacto de ClonChat`,
+              };
+
+              await emailjs.send(
+                "service_9e7uyzc",
+                "template_re5cvzf",
+                templateParams,
+                "sYp_HQSVI7WOCwQhY"
+              );
+
+              setSubmitStatus("success");
+              form.reset();
+
+              // Auto close after 3 seconds
+              setTimeout(() => {
                 close();
-              } else {
-                alert('Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
-              }
+                setSubmitStatus("idle");
+              }, 3000);
             } catch (error) {
-              alert('Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
+              console.error("Error sending email:", error);
+              setSubmitStatus("error");
+            } finally {
+              setIsLoading(false);
             }
           }}
         >
@@ -134,27 +152,54 @@ function ContactModal() {
             rows={4}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
           />
+          {submitStatus === "success" && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-800 text-sm">
+                ¡Mensaje enviado correctamente! Te contactaremos pronto.
+              </p>
+            </div>
+          )}
+
+          {submitStatus === "error" && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800 text-sm">
+                Error al enviar el mensaje. Por favor, inténtalo de nuevo.
+              </p>
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
-              onClick={close}
+              onClick={() => {
+                close();
+                setSubmitStatus("idle");
+              }}
+              disabled={isLoading}
             >
               {t("contact_cancel")}
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-md bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
+              className="px-4 py-2 rounded-md bg-[#2563eb] text-white hover:bg-[#1d4ed8] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={isLoading}
             >
-              {t("contact_send")}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                t("contact_send")
+              )}
             </button>
           </div>
           <p className="text-xs text-gray-500 pt-2">
-            {t("contact_note")}
+            Tu mensaje será enviado directamente a nuestro equipo
           </p>
         </form>
       </div>
     </div>
   );
 }
-

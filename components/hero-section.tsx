@@ -5,15 +5,52 @@ import { useContactModal } from "@/components/ui/contact-modal";
 import { useI18n } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { Calendar, ShoppingCart, ArrowRight } from "lucide-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export function HeroSection() {
   const contact = useContactModal();
   const { t } = useI18n();
 
   return (
-    <section className="min-h-screen bg-white flex items-center">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="text-center space-y-12">
+    <section className="min-h-screen bg-white flex items-center relative overflow-hidden pt-16 md:pt-0">
+      {/* Mobile-specific Lottie container */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none overflow-hidden md:hidden">
+        <div className="w-full h-full flex items-center justify-center px-4">
+          <DotLottieReact
+            src="/Chat Bot Test.lottie"
+            loop
+            autoplay
+            speed={0.8}
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: "60vh",
+              objectFit: "contain",
+            }}
+          />
+        </div>
+      </div>
+      {/* Desktop Lottie Animation */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none overflow-hidden hidden md:block">
+        <div className="w-full h-full flex items-center justify-center">
+          <DotLottieReact
+            src="/Chat Bot Test.lottie"
+            loop
+            autoplay
+            speed={0.5}
+            style={{
+              width: "100%",
+              height: "100%",
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-8 md:py-0">
+        <div className="text-center space-y-8 md:space-y-12">
           {/* Main Title - Google Style */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
